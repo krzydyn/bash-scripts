@@ -1,0 +1,1 @@
+cd ~ && eclipse -data ~/workspace &>/dev/null &

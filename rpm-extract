@@ -1,0 +1,5 @@
+while [ $# -gt 0 ]; do
+    #mkdir `echo $1|sed '/\.rpm//'`
+    rpm2cpio $1 | cpio -idmv
+    shift
+done

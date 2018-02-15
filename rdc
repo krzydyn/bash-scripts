@@ -1,0 +1,22 @@
+if [ "x$1" = "x-h" ]; then
+    echo "Usage: rdc ip [name]"
+    exit
+fi
+
+HOST=${1:-"106.120.52.62"}
+USER=${2:-"DIGITAL\k.dynowski"}
+
+NAME=`host $HOST|awk '{print $5}'|awk -F . '{print $1}'`
+
+# -r clipboard:[off|PRIMARYCLIPBOARD|CLIPBOARD]
+# -B use X backing store
+# -D hide decorations
+#-D     Hide window manager decorations, by using MWM hints.
+#-K     Do not override window manager key bindings.
+
+echo rdesktop -T "$NAME" -K -k "pl" -u "'$USER'" -g "1920x1024" -r "clipboard:PRIMARYCLIPBOARD" "${HOST}"
+rdesktop -T "$NAME" -K -k "pl" -u "$USER" -g "1920x1024" -r "clipboard:PRIMARYCLIPBOARD" "${HOST}" &>/dev/null &
+
+#HOST="106.116.147.247"
+#NAME="AMDN1142"
+#rdesktop -T $NAME -K -k "pl" -u "DIGITAL\d.michaluk" -g "1920x1024" -r "clipboard:PRIMARYCLIPBOARD" "${HOST}" &>/dev/null &

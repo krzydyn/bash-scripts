@@ -1,0 +1,8 @@
+if [ -d build ]; then
+	echo "Entering build dir"
+	cd build && make && sudo make install
+	echo "Leaving build dir"
+else
+	make && sudo make install
+fi
+sudo ldconfig

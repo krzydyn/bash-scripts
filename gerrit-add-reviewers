@@ -1,0 +1,10 @@
+#!/bin/sh
+
+#ssh -p <port> <host> gerrit set-reviewers
+#  [--project <PROJECT> | -p <PROJECT>]
+#  [--add <REVIEWER> … | -a <REVIEWER> … ]
+#  [--remove <REVIEWER> … | -r <REVIEWER> … ]
+#  [--]
+#  {CHANGE-ID}
+
+

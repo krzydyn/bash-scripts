@@ -1,0 +1,82 @@
+#alias gbs-common-arm-x11='gbs build -A armv7l -P common_arm_x11 --overwrite --include-all --buildroot ~/GBS-COMMON-ARM-X11/ --define "build_type DEBUG" --no-patch-export'
+# default buildroot ~/GBS-ROOT
+
+. ~/bin/.functions.inc
+
+PROF="tizen"
+ARCH=""
+BRANCH=`git status|grep -i "on branch"`
+if echo $BRANCH|grep -q slp; then
+    PROF=slp
+fi
+
+OPTS=()
+while [ $# -gt 0 ]; do
+	a=$1; shift
+    case "$a" in
+        -t) exit
+            ;;
+        -P) PROF="$1"; shift
+            ;;
+        -A) ARCH="$1"; shift
+            ;;
+        -d) OPTS+=("--define" "build_type DEBUG")
+            ;;
+        -*) OPTS+=("$a" "$1"); shift
+            ;;
+        *) break;;
+    esac
+done
+
+if [ "$ARCH" = "" ]; then
+	case $PROF in
+		emulator)   ARCH="i586"
+			;;
+		emulator64) ARCH="x86_64"
+			PROF="emulator"
+			;;
+		*tizen) ARCH="armv7l";;
+		*tizen64)
+			PROF="tizen"
+			ARCH="aarch64";;
+	esac
+fi
+
+if [ $# -eq 0 ]; then
+    set "."
+fi
+
+
+# --include-all - compiles changed sources, otherwise only commited
+OPTS+=("--include-all")
+
+#sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
+
+rm -rf ~/GBS-ROOT/$PROF/local/sources/
+
+for i in $@; do
+    if [ "x$i" = "x" ]; then continue; fi
+    PROJ_OPTS=()
+    f=`readlink -m $i`
+    f=`basename $f`
+	#choose config based on project name (dirname)
+    case "$f" in
+        #security-server) profile="slp-tct";;
+        #mdm-server) profile="slp-tct";;
+        tef-simulator)
+			profile=emulator
+			PROJ_OPTS+=("-A" "i586")
+			PROJ_OPTS+=("--spec" "tef-simulator.spec")
+			;;
+        *)
+			profile=$PROF
+			PROJ_OPTS+=("-A" "$ARCH")
+			;;
+    esac
+	PROJ_OPTS+=("-P" "$profile")
+	PROJ_OPTS+=("-B" "~/GBS-ROOT/$profile")
+	echo "Building $f"
+	showargs gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}"
+    (cd $i && HTTP_PROXY=http://106.116.37.23:3128 gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}")
+	echo "Build done ($f)"
+done

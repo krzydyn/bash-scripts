@@ -1,0 +1,1 @@
+nm -D $1 | sed 's/[^UVTAWw]*[UVTAWw] *//'|sort

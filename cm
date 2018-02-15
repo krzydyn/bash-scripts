@@ -1,0 +1,22 @@
+opt=""
+GNU=`type -p g++`
+CLANG=`type -p clang++`
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        r) opt+=" -D CMAKE_BUILD_TYPE=RELEASE";;
+        d) opt+=" -D CMAKE_BUILD_TYPE=DEBUG";;
+        32) opt+=" -D FORCE_32BIT=1";;
+        clang) opt+=" -D CMAKE_CXX_COMPILER=$CLANG";;
+        gnu) opt+=" -D CMAKE_CXX_COMPILER=$GNU";;
+        *) break;;
+    esac
+    shift
+done
+
+echo "Create empty build dir ..."
+rm -rf build/
+mkdir -p build
+echo "cmake$opt $@"
+cd build && cmake$opt .. "$@"
+

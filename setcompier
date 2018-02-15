@@ -1,0 +1,20 @@
+#!/bin/bash
+
+PREFIX=$1
+VERSION=$2
+
+echo "find -name \"${PREFIX}*-${VERSION}\""
+
+for trg in `find /usr/bin -name "${PREFIX}*-${VERSION}"`; do
+	link=`echo $trg|sed -e "s/-${VERSION}\$//"`
+	echo link $trg to $link
+	if [ -e $link ]; then
+		if [ -L $link ]; then
+			rm $link;
+		else
+			echo "$link exists"
+			break
+		fi
+	fi
+	ln -s $trg $link
+done

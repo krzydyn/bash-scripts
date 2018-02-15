@@ -1,0 +1,4 @@
+#!/bin/sh
+
+$HOME/sec-os-tef/tizen-emulator-scripts/5.0/mobile/run.sh
+# $HOME/sec-os-tef/tizen-emulator-scripts/4.0/mobile/run.sh

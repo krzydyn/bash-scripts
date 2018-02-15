@@ -1,0 +1,35 @@
+#!/bin/bash
+
+PROF="tizen"
+ARCH="armv7l"
+#ARCH="i586"
+if [ -n "$1" ]; then
+    PROF=$1
+fi
+
+rootfs=~/GBS-ROOT/${PROF}/local/BUILD-ROOTS/scratch.${ARCH}.0
+repo=~/GBS-ROOT/${PROF}/local/repos/${PROF}/${ARCH}/RPMS
+
+#sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
+
+if [ "$PROF" = "slp" ];then
+sudo -- sh -c "\
+mkdir -p $rootfs/RPMS &&\
+cp ~/vasum-hq/rpms-hq/vasum*rpm $rootfs/root/ &&\
+cp /etc/passwd $rootfs/etc &&\
+mount $repo $rootfs/RPMS -o bind,ro &&\
+chroot $rootfs ;\
+umount $rootfs/RPMS\
+"
+else
+echo "chroot $rootfs"
+sudo rm -rf "$rootfs/RPMS"
+sudo cp -a $repo $rootfs/
+sudo mount /proc $rootfs/proc -o bind,ro
+sudo -- sh -c "\
+chroot $rootfs ;\
+"
+sudo umount $rootfs/proc
+fi
+
+#sudo chroot ~/GBS-ROOT/local/BUILD-ROOTS/scratch.armv7l.0/ su -

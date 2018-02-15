@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DEV="/dev/ttyUSB0"
+
+while [ $# -gt 0 ]; do
+    a="$1"; shift
+	case "$a" in
+		[0-9]) DEV="/dev/ttyUSB$a" ;;
+		usb*)  DEV="/dev/tty"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
+		USB*)  DEV="/dev/tty$a" ;;
+		[sS]*) DEV="/dev/tty"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
+	esac
+done
+
+minicom -c on -D $DEV

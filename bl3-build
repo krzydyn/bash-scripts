@@ -1,0 +1,32 @@
+#!/bin/bash
+
+MAKE_TARGET="bl31"
+COMPILER="arm-linux-gnueabi-"
+PLAT="jazzm"
+OPTS=()
+
+while [ $# -gt 0 ]; do
+    a="$1"; shift
+	case "$a" in
+		jazz*|hawk*) PLAT="$a";;
+		all|bl*) MAKE_TARGET="$a";;
+		V=*) OPTS+=("$a");;
+		*) echo "Wrong arg '$a'"; exit ;;
+	esac
+done
+
+
+if [ "$PLAT" = "vfp" ]; then
+	COMPILER=/usr/local/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabi/bin/arm-linux-gnueabi-
+	ARCH=aarch32
+elif [ "$PLAT" = "jazzm" ]; then
+	ARCH=aarch32
+else
+	COMPILER=/usr/local/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+	ARCH=aarch64
+fi
+
+#CROSS_COMPILE=${COMPILER} make PLAT="$PLAT" ARCH="$ARCH" distclean
+#rm -rf build/
+echo
+CROSS_COMPILE=${COMPILER} make "${OPTS[@]}" DEBUG=1 PLAT="$PLAT" ARCH="$ARCH" "${MAKE_TARGET}" 2>&1 | tee build-${PLAT}.out

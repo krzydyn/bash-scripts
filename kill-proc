@@ -1,0 +1,2 @@
+NAME=${1:-LXC}
+sudo kill `ps ax|grep $NAME|awk '{print $1}'`

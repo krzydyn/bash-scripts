@@ -1,0 +1,22 @@
+#!/bin/bash
+
+PROF="tizen"
+
+TOP_DIR=~/GBS-ROOT
+
+while [ $# -gt 0 ]; do
+	a=$1; shift
+    case "$a" in
+        -t) exit
+            ;;
+        -P) PROF="$1"; shift
+	esac
+done
+
+MAIN_CACHE=${TOP_DIR}/$PROF/local/cache
+ORDER_CACHE=${TOP_DIR}/$PROF/local/order
+
+echo "clean caches ..."
+rm -rf $MAIN_CACHE $ORDER_CACHE
+#sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
+echo "done."

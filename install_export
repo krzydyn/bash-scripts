@@ -1,0 +1,28 @@
+CWD=`pwd`
+if echo $CWD|grep build&>/dev/null; then
+	SRC=$CWD
+else
+	SRC="/home/k.dynowski/sec-os/secos/build"
+fi
+DST="/home/export"
+REMOTE="k.dynowski@106.120.53.112"
+
+if [ -z "$REMOTE" ]; then 
+sudo cp -Rv ${SRC}/app-ree-install/usr/apps/* ${DST}/usr/apps/
+sudo cp -Rv ${SRC}/app-tee-install/usr/apps/tee ${DST}/usr/apps/
+sudo cp -Rv ${SRC}/ree-install/modules/* ${DST}/lib/modules/
+sudo cp -Rv ${SRC}/ree-install/lib/* ${DST}/usr/lib/
+sudo cp -Rv ${SRC}/ree-install/bin/* ${DST}/sbin/
+#sudo cp -Rv ${SRC}/app-ree-build/trustzone-application/standalone/test_dbg ${DST}/usr/apps/
+
+else
+DST+="/hawk"
+ssh "${REMOTE}" "mkdir -p ${DST}/usr/apps/ ${DST}/lib/modules/ ${DST}/usr/lib/ ${DST}/sbin/"
+
+scp -pr ${SRC}/app-ree-install/usr/apps/* "${REMOTE}:${DST}/usr/apps/"
+scp -pr ${SRC}/app-tee-install/usr/apps/tee "${REMOTE}:${DST}/usr/apps/"
+scp -pr ${SRC}/ree-install/modules/* "${REMOTE}:${DST}/lib/modules/"
+scp -pr ${SRC}/ree-install/lib/* "${REMOTE}:${DST}/usr/lib/"
+scp -pr ${SRC}/ree-install/bin/* "${REMOTE}:${DST}/sbin/"
+
+fi

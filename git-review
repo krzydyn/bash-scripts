@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -le 0 ]; then
+	echo
+	echo "Usage: "`basename $0`" <branch_name>"
+	echo
+	exit 1
+fi
+
+BRANCH=$1
+echo "git push origin HEAD:refs/for/${BRANCH}"
+git push origin HEAD:refs/for/${BRANCH}

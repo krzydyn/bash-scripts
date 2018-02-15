@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TARGET='jazzm'
+TARGET='hawkp'
+
+DST_TOP="/media/$USER/boot"
+
+if [ ! -d "$DST_TOP" ]; then
+	echo "boot not found"
+	exit 1
+fi
+
+
+if [ "$TARGET" = 'jazzm' ]; then
+	DST="$DST_TOP/updateJM"
+	mkdir -p "$DST"
+	cp -v kernel-install/secos.bin "$DST"
+	cp -v kernel-install/secos_drv.bin "$DST"
+elif [ "$TARGET" = 'hawkp' ]; then
+	DST="$DST_TOP/updateHP"
+	mkdir -p "$DST"
+	cp -v kernel-install/secos.bin "$DST"
+	cp -v module-install/secos_drv.bin "$DST"
+fi
+echo "sync fs..."
+sync

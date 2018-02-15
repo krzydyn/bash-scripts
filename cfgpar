@@ -1,0 +1,3 @@
+#echo "--board=jazzm" "--linux-dir=$HOME/vd-linux/linux-3.10.28/" "--all-toolchain=${TOOLCHAIN_PREFIX}" "--toolchain=gcc"
+echo "--board=hawkp" "--linux-dir=$HOME/vd-linux/vd-linux-3-10-30/" "--all-toolchain=${TOOLCHAIN_PREFIX}" "--toolchain=gcc"
+#echo "--board=hikey32" "--linux-dir=$HOME/vd-linux/linux-3.10.28/" "--all-toolchain=${TOOLCHAIN_PREFIX}" "--ree-toolchain=aarch64-linux-gnu-"

@@ -1,0 +1,29 @@
+M=$1
+GIT_USER=$2
+date_from=
+date_to=
+
+if [ -z "$GIT_USER" ]; then
+    GIT_USER=`git config user.name`
+fi
+if [ -z "$M" ]; then
+    date_from=`date +%Y-%m-01`
+else
+    date_from=`date +%Y-$M-01`
+fi
+
+M=`date -d "$date_from" +%m`
+offs=28
+while [ "$M" = `date -d "$date_from +$offs days" +%m` ]; do
+    offs=$((offs+1))
+done
+date_to=`date -d "$date_from +$offs days" +%Y-%m-%d`
+date_from=`date --date "$date_from - 1 day"`
+echo commits from $date_from to $date_to for $GIT_USER > /dev/stderr
+
+if [ "x$GIT_USER" = "xany" ]; then
+    git log --format=fuller --ignore-space-change --patience --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder --patch
+else
+    git log --format=fuller --ignore-space-change --patience --author="$GIT_USER" --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder --patch
+fi
+

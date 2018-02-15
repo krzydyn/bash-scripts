@@ -1,0 +1,54 @@
+#!/bin/bash
+
+TEST=true
+
+function applyrules {
+    cat $1 \
+    | sed -e 's/\([,]\) *\([^$]\)/\1 \2/g' \
+     -e 's/\([^ ]\) *\([{]\)/\1 \2/g' \
+     -e 's/\([^ ]\) *\([=|+-]\+\|!=\|+=\|<=\|>=\|->\|>>\|<<\|<<=\|>>=\) */\1 \2 /g' \
+     -e 's/\(operator\) \([-=+!<>]\+\) */\1\2/g' \
+     -e 's/\([^)]\) \(->\) /\1\2/g' \
+     -e 's/( /(/g' \
+     -e 's/ )/)/g' \
+     -e 's/ *++ */++/g' \
+     -e 's/++=/++ =/g' \
+     -e 's/\[ \(.\) \]/\[\1\]/g' \
+     -e 's/=- /= -/g' \
+     -e 's/(- /(-/g' \
+     -e 's/ -> \([A-Za-z_]\)/->\1/g' \
+     -e 's/ if(/ if (/g' \
+     -e 's/return - /return -/g' \
+     -e 's/ \+$//g' \
+     -e 's/'\'' *\(.\) *'\''/'\''\1'\''/g' \
+    | cat
+}
+
+while [ $# -gt 0 ];do
+    SRC=$1
+    case $SRC in
+        -f) TEST=false
+            continue
+            ;;
+    esac
+    if $TEST; then
+        if applyrules "$SRC" | diff "$SRC" /dev/stdin; then
+            echo "file $1 not changed $?"
+        else
+            echo "file $1 changed $?"
+        fi
+    else
+        TMP=`echo "$SRC" | sed 's/\//_/g'`
+        TMP="/tmp/$TMP"
+        echo "TMP is $TMP"
+        applyrules "$SRC" > $TMP
+        if diff "$TMP" "$SRC"; then
+            echo "file $SRC not changed $?"
+        else
+            echo "file $SRC changed $?"
+            mv $TMP $SRC
+        fi
+        rm -f $TMP
+    fi
+    shift
+done

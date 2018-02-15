@@ -1,0 +1,1 @@
+eclipse -data ~/workspace.slp &>/dev/null &

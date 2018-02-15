@@ -1,0 +1,3 @@
+#!/bin/sh
+
+git push --receive-pack="git receive-pack --reviewer=j.pelczar@samsung.com --reviewer=j.bialecki@samsung.com --reviewer=w.garbacz@samsung.com --reviewer=k.debski@samsung.com --reviewer=l.bryndza@samsung.com --reviewer=andrzej.p@samsung.com --reviewer=p.marczak@samsung.com" origin HEAD:refs/for/tizen

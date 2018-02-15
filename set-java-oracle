@@ -1,0 +1,15 @@
+#!/bin/bash
+export JAVA_HOME="/opt/jdk/jdk1.8.0_144"
+PL=`echo $PATH|tr ':' ' '`
+
+NPL=("$JAVA_HOME/bin")
+for p in $PL; do
+	case "$p" in
+		/opt/jdk*) ;;
+		*) NPL+=("$p");;
+	esac
+done
+
+P=$(printf ":%s" "${NPL[@]}")
+echo ${P:1}
+PATH=${P:1}

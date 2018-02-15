@@ -1,0 +1,29 @@
+link="https://mcdsrvbld02.digital.local/~d.michaluk/demo-slp/packages/"
+opts=""
+passwd="Alamakota71"
+
+if [ $# -gt 0 ]; then
+    link="$1"
+    shift
+fi
+path="$(echo $link | cut -d/ -f4-)"
+echo "path=$path"
+oIFS=$IFS; IFS='/'; read -ra ap <<< "$path"; IFS=$oIFS
+catdir=${#ap[@]}
+
+if [[ $link == "https:"* ]];then
+    opts+="--no-check-certificate"
+fi
+
+if [ -n "$passwd" ]; then
+    opts+=" --password=$passwd"
+else
+    opts+=" --ask-password"
+fi
+opts+=" --recursive --no-host-directories"
+opts+=" --reject index.html*"
+opts+=" --no-parent" # Do not ever ascend to the parent directory when retrieving recursively
+opts+=" --cut-dir=${catdir}"
+
+echo wget --user=k.dynowski -np $opts $link
+wget --user=k.dynowski $opts $link

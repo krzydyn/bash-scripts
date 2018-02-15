@@ -1,0 +1,4 @@
+if ! ifconfig | grep -A 3 em1|grep "inet "; then
+    echo starting dhcp
+    sudo dhclient em1
+fi

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+. ~/bin/.functions.inc
+
+if [ ! "$BASH_VERSION" ] ; then
+    echo "Please do not use sh to run this script ($0), just execute it directly" 1>&2
+    exit 1
+fi
+
+#find "${2:-.}" -name "${3:-*.[ch]pp}" -exec grep -H "$1" {} \;
+
+ARGS=()
+OPTS=("-Rn" "--color")
+inc=false
+while [ $# -gt 0 ]; do
+    a="$1"; shift
+	#echo "arg $a $1"
+	case "$a" in
+	-*)
+		OPTS+=("${ARGS[@]}")
+		if [ "$a" = "-i" ]; then
+        	OPTS+=("$a")
+            continue
+		fi
+		if [ "$a" = "-a" ]; then
+            inc=true
+            continue
+        fi
+		if [ "$a" = "-mk" ]; then
+			OPTS+=("--include" "*.mk" "--include" "[Mm]akefile")
+			inc=true;
+            continue
+		fi
+		if [ "$a" = "-cm" ]; then
+			OPTS+=("--include" "*.cmake" "--include" "CMakeLists.txt")
+			inc=true;
+            continue
+		fi
+		c=""
+		if [ "$a" = "-in" ]; then a="--include"; fi
+		if [ "$a" = "-inh" ]; then OPTS+=("--include"); a="*.h"; inc=true; fi
+		if [ "$a" = "-ex" ]; then a="--exclude"; fi
+		if [ "$a" = "-exd" ]; then a="--exclude-dir"; fi
+        OPTS+=("$a")
+		if [ "$a" = "--include" ]; then inc=true; fi
+		if [ "$a" = "--exclude" ]; then inc=true; fi
+		;;
+	*)
+		if [ $# -gt 0 ]; then
+			OPTS+=("$a")
+		else
+			ARGS+=("$a")
+		fi
+		;;
+	esac
+done
+
+OPTS+=("--exclude-dir" ".*")
+OPTS+=("--exclude-dir" "GBS-ROOT")
+OPTS+=("--exclude-dir" "build*")
+
+if ! $inc; then
+	OPTS+=("--include" "*.java")
+	OPTS+=("--include" "*.[ch]pp")
+	OPTS+=("--include" "*.cc")
+	OPTS+=("--include" "*.[cChH]")
+	OPTS+=("--include" "*.[sS]")
+	OPTS+=("--include" "*.[cj]s")
+	OPTS+=("--include" "*.php")
+fi
+showargs egrep "${OPTS[@]}" "${ARGS[@]}" >&2
+egrep "${OPTS[@]}" "${ARGS[@]}"

@@ -1,0 +1,3 @@
+echo "$@" >> /tmp/printf.txt
+echo "==============================" >> /tmp/printf.txt
+printf "$@"
