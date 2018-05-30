@@ -38,7 +38,11 @@ while [ $# -gt 0 ]; do
 		fi
 		c=""
 		if [ "$a" = "-in" ]; then a="--include"; fi
-		if [ "$a" = "-inh" ]; then OPTS+=("--include"); a="*.h"; inc=true; fi
+		if [ "$a" = "-inh" ]; then
+			OPTS+=("--include" "*.[hH]")
+			OPTS+=("--include" "*.[hH]pp")
+			inc=true; a=
+		fi
 		if [ "$a" = "-ex" ]; then a="--exclude"; fi
 		if [ "$a" = "-exd" ]; then a="--exclude-dir"; fi
         OPTS+=("$a")
@@ -46,7 +50,7 @@ while [ $# -gt 0 ]; do
 		if [ "$a" = "--exclude" ]; then inc=true; fi
 		;;
 	*)
-		if [ $# -gt 0 ]; then
+		if [ $# -gt 1 ]; then
 			OPTS+=("$a")
 		else
 			ARGS+=("$a")
@@ -63,6 +67,7 @@ if ! $inc; then
 	OPTS+=("--include" "*.java")
 	OPTS+=("--include" "*.[ch]pp")
 	OPTS+=("--include" "*.cc")
+	OPTS+=("--include" "*.hh")
 	OPTS+=("--include" "*.[cChH]")
 	OPTS+=("--include" "*.[sS]")
 	OPTS+=("--include" "*.[cj]s")

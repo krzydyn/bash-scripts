@@ -5,6 +5,7 @@
 
 PROF="tizen"
 ARCH=""
+PROXY="http://106.116.37.23:3128"
 BRANCH=`git status|grep -i "on branch"`
 if echo $BRANCH|grep -q slp; then
     PROF=slp
@@ -22,9 +23,12 @@ while [ $# -gt 0 ]; do
             ;;
         -d) OPTS+=("--define" "build_type DEBUG")
             ;;
+        -r) OPTS+=("--define" "build_type RELEASE")
+            ;;
         -*) OPTS+=("$a" "$1"); shift
             ;;
-        *) break;;
+        *)	set $a "$@"
+			 break;;
     esac
 done
 
@@ -39,6 +43,9 @@ if [ "$ARCH" = "" ]; then
 		*tizen64)
 			PROF="tizen"
 			ARCH="aarch64";;
+		*)
+			PROXY=false
+			ARCH="armv7l";;
 	esac
 fi
 
@@ -77,6 +84,10 @@ for i in $@; do
 	PROJ_OPTS+=("-B" "~/GBS-ROOT/$profile")
 	echo "Building $f"
 	showargs gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}"
-    (cd $i && HTTP_PROXY=http://106.116.37.23:3128 gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}")
+	if [ -n "$PROXY" ]; then
+	    (cd $i && HTTP_PROXY="$PROXY" gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}")
+	else
+	    (cd $i && gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}")
+	fi
 	echo "Build done ($f)"
 done

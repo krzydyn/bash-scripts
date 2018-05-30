@@ -7,9 +7,8 @@ TOP_DIR=~/GBS-ROOT
 while [ $# -gt 0 ]; do
 	a=$1; shift
     case "$a" in
-        -t) exit
-            ;;
-        -P) PROF="$1"; shift
+        -t) exit ;;
+        -P) PROF="$1"; shift ;;
 	esac
 done
 

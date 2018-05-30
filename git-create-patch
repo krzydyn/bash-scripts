@@ -1,0 +1,16 @@
+#!/bin/bash
+
+n=1
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-n) shift;n=$1;;
+		*) break;;
+	esac
+	shift
+done
+
+for sha in "$@"; do
+	f=`printf '%04d-%s.patch' $n $sha`
+	git format-patch -1 --stdout $sha > $f
+	n=$((n+1))
+done

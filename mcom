@@ -12,4 +12,6 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-minicom -c on -D $DEV
+NAME=`basename $DEV`
+
+minicom -c on -D $DEV -C "/tmp/captute-$NAME.txt"
