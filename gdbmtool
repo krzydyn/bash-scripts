@@ -1,0 +1,20 @@
+#!/usr/bin/ruby
+
+require 'gdbm'
+
+dbfile, op, key, val, = ARGV
+
+GDBM.open(dbfile) do |db|
+  case op
+  when "set"
+    db[key] = val
+  when "get"
+    puts db[key]
+  when "rm"
+    db.delete(key)
+  else
+    db.each do |k, v|
+      puts "#{k.inspect} = #{v.inspect}"
+    end
+  end
+end

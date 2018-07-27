@@ -1,0 +1,25 @@
+#!/bin/sh
+
+TOOL32HF="/usr/local/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-"
+TOOL32="/usr/local/gcc-linaro-4.9-2015.05-x86_64_arm-linux-gnueabi/bin/arm-linux-gnueabi-"
+TOOL64="/usr/local/gcc-linaro-4.9-2015.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
+TOOL32v5="/usr/local/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabi/bin/arm-linux-gnueabi-"
+TOOL64v5="/usr/local/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
+
+export CROSS_COMPILE=$TOOL32HF
+#export TOOLCHAIN_PREFIX=$TOOL32
+
+
+export AS="${CROSS_COMPILE}as"
+export AR="${CROSS_COMPILE}ar"
+export CC="${CROSS_COMPILE}gcc -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wuninitialized"
+export CPP="${CROSS_COMPILE}gcc -E"
+export CXX="${CROSS_COMPILE}g++"
+export LD="${CROSS_COMPILE}ld"
+export RANLIB="${CROSS_COMPILE}ranlib"
+export NM="${CROSS_COMPILE}nm"
+export STRIP="${CROSS_COMPILE}strip"
+export OBJCOPY="${CROSS_COMPILE}objcopy"
+export OBJDUMP="${CROSS_COMPILE}objdump"
+
+make $@

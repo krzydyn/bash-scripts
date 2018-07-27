@@ -44,7 +44,7 @@ if [ "$ARCH" = "" ]; then
 			PROF="tizen"
 			ARCH="aarch64";;
 		*)
-			PROXY=false
+			PROXY=""
 			ARCH="armv7l";;
 	esac
 fi
@@ -81,8 +81,10 @@ for i in $@; do
 			;;
     esac
 	PROJ_OPTS+=("-P" "$profile")
-	PROJ_OPTS+=("-B" "~/GBS-ROOT/$profile")
 	echo "Building $f"
+	if [ -n "$PROXY" ]; then
+		echo -n "HTTP_PROXY=$PROXY" 
+	fi
 	showargs gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}"
 	if [ -n "$PROXY" ]; then
 	    (cd $i && HTTP_PROXY="$PROXY" gbs build "${OPTS[@]}" "${PROJ_OPTS[@]}")

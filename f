@@ -44,6 +44,6 @@ if [ -z "$SEARCHDIR" ]; then
     SEARCHDIR="."
 fi
 
-OPTS+=("-not" "-path" "./GBS-ROOT/*" "-not" "-path" "./build/*" )
+OPTS+=("-not" "-path" "./GBS-ROOT/*" )
 echo "find $SEARCHDIR" "${OPTS[@]}" "${ARGS[@]}" >&2
 find "$SEARCHDIR" "${OPTS[@]}" "${ARGS[@]}" 2>/dev/null

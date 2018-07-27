@@ -1,0 +1,29 @@
+#!/bin/bash
+
+RED=`printf '\x1b[0;31m'`
+GREEN=`printf '\x1b[0;32m'`
+RST=`printf '\x1b[m'`
+
+BASE_DIR="${1:-.}"
+SUM=0
+SUMOK=0
+for f in `find $BASE_DIR -type f`; do
+	file $f | grep ELF &> /dev/null || continue
+	SUM=$((SUM+1))
+	echo -n "$f  ..."
+	ELFINFO=`readelf -s $f | grep FUNC`
+	N=`echo "$ELFINFO" | wc -l`
+	if echo "$ELFINFO" | grep __stack_chk_fail &> /dev/null; then
+		echo " ${GREEN}OK${RST}"
+		SUMOK=$((SUMOK+1))
+	else
+		echo " ${RED}No canary${RST} $N"
+	fi
+done
+
+if [ $SUM -eq 0 ];then
+	echo "ELF files not found"
+else
+	echo "Summary: $SUMOK / $SUM  " $((SUMOK*100/SUM)) "%"
+fi
+

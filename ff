@@ -9,15 +9,17 @@ fi
 
 #find "${2:-.}" -name "${3:-*.[ch]pp}" -exec grep -H "$1" {} \;
 
-ARGS=()
 OPTS=("-Rn" "--color")
+OPTS+=("--exclude-dir" ".*")
+OPTS+=("--exclude-dir" "GBS-ROOT")
+OPTS+=("--exclude-dir" "build-*")
+
 inc=false
 while [ $# -gt 0 ]; do
     a="$1"; shift
 	#echo "arg $a $1"
 	case "$a" in
 	-*)
-		OPTS+=("${ARGS[@]}")
 		if [ "$a" = "-i" ]; then
         	OPTS+=("$a")
             continue
@@ -32,7 +34,7 @@ while [ $# -gt 0 ]; do
             continue
 		fi
 		if [ "$a" = "-cm" ]; then
-			OPTS+=("--include" "*.cmake" "--include" "CMakeLists.txt")
+			OPTS+=("--include" "*.cmake" "--include" "*.cmake.in" "--include" "CMakeLists.txt")
 			inc=true;
             continue
 		fi
@@ -44,24 +46,16 @@ while [ $# -gt 0 ]; do
 			inc=true; a=
 		fi
 		if [ "$a" = "-ex" ]; then a="--exclude"; fi
-		if [ "$a" = "-exd" ]; then a="--exclude-dir"; fi
+		if [ "$a" = "-exd" ]; then a="--exclude-dir"; inc=true; fi
         OPTS+=("$a")
 		if [ "$a" = "--include" ]; then inc=true; fi
 		if [ "$a" = "--exclude" ]; then inc=true; fi
 		;;
 	*)
-		if [ $# -gt 1 ]; then
-			OPTS+=("$a")
-		else
-			ARGS+=("$a")
-		fi
+		OPTS+=("$a")
 		;;
 	esac
 done
-
-OPTS+=("--exclude-dir" ".*")
-OPTS+=("--exclude-dir" "GBS-ROOT")
-OPTS+=("--exclude-dir" "build*")
 
 if ! $inc; then
 	OPTS+=("--include" "*.java")
@@ -73,5 +67,5 @@ if ! $inc; then
 	OPTS+=("--include" "*.[cj]s")
 	OPTS+=("--include" "*.php")
 fi
-showargs egrep "${OPTS[@]}" "${ARGS[@]}" >&2
-egrep "${OPTS[@]}" "${ARGS[@]}"
+showargs egrep "${OPTS[@]}" >&2
+egrep "${OPTS[@]}"
