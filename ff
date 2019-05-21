@@ -1,18 +1,19 @@
 #!/bin/bash
 
-. ~/bin/.functions.inc
-
 if [ ! "$BASH_VERSION" ] ; then
     echo "Please do not use sh to run this script ($0), just execute it directly" 1>&2
     exit 1
 fi
+
+. ~/bin/.functions.inc
 
 #find "${2:-.}" -name "${3:-*.[ch]pp}" -exec grep -H "$1" {} \;
 
 OPTS=("-Rn" "--color")
 OPTS+=("--exclude-dir" ".*")
 OPTS+=("--exclude-dir" "GBS-ROOT")
-OPTS+=("--exclude-dir" "build-*")
+OPTS+=("--exclude-dir" "build*")
+LASTOPS=()
 
 inc=false
 while [ $# -gt 0 ]; do
@@ -29,7 +30,7 @@ while [ $# -gt 0 ]; do
             continue
         fi
 		if [ "$a" = "-mk" ]; then
-			OPTS+=("--include" "*.mk" "--include" "[Mm]akefile")
+			OPTS+=("--include" "*.mk" "--include" "[Mm]akefile" "--include" "[Mm]akefile.*")
 			inc=true;
             continue
 		fi
@@ -39,20 +40,31 @@ while [ $# -gt 0 ]; do
             continue
 		fi
 		c=""
-		if [ "$a" = "-in" ]; then a="--include"; fi
+		if [ "$a" = "-inc" ]; then
+			OPTS+=("--include" "*.[cC]")
+			OPTS+=("--include" "*.cpp")
+			inc=true;
+			continue;
+		fi
 		if [ "$a" = "-inh" ]; then
 			OPTS+=("--include" "*.[hH]")
 			OPTS+=("--include" "*.[hH]pp")
-			inc=true; a=
+			inc=true;
+			continue;
 		fi
+		if [ "$a" = "-in" ]; then a="--include"; fi
 		if [ "$a" = "-ex" ]; then a="--exclude"; fi
 		if [ "$a" = "-exd" ]; then a="--exclude-dir"; inc=true; fi
         OPTS+=("$a")
 		if [ "$a" = "--include" ]; then inc=true; fi
-		if [ "$a" = "--exclude" ]; then inc=true; fi
+		#if [ "$a" = "--exclude" ]; then inc=true; fi
 		;;
 	*)
-		OPTS+=("$a")
+		if [ $# -eq 0 ]; then
+			LASTOPTS+=("$a")
+		else
+			OPTS+=("$a")
+		fi
 		;;
 	esac
 done
@@ -66,6 +78,27 @@ if ! $inc; then
 	OPTS+=("--include" "*.[sS]")
 	OPTS+=("--include" "*.[cj]s")
 	OPTS+=("--include" "*.php")
+	OPTS+=("--include" "*.inc")
+	OPTS+=("--include" "*.in")
 fi
+
+OPTS+=("${LASTOPTS}")
+
+# GREP_COLORS - Its value is a colon-separated list of capabilities that defaults to
+#      ms=01;31:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36
+# sl = whole selected lines
+# cx = non-matching lines
+# mt = matching text
+# ms = matching selected line
+# mc = matching context line
+# fn = file name
+# ln = line number
+# bn = byte number
+# se = separators inserted
+# ne = no erase (using EraseOfLine)
+#
+# fn=1;32 - filename=green
+#
+export GREP_COLORS='fn=1;35'
 showargs egrep "${OPTS[@]}" >&2
 egrep "${OPTS[@]}"

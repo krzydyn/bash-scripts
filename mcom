@@ -5,13 +5,15 @@ DEV="/dev/ttyUSB0"
 while [ $# -gt 0 ]; do
     a="$1"; shift
 	case "$a" in
+		/dev/*) DEV=$a ;;
 		[0-9]) DEV="/dev/ttyUSB$a" ;;
 		usb*)  DEV="/dev/tty"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
 		USB*)  DEV="/dev/tty$a" ;;
-		[sS]*) DEV="/dev/tty"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
+		ttyS*) DEV="/dev/"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
+		S*) DEV="/dev/tty"`echo $a|tr '[:lower:]' '[:upper:]'` ;;
 	esac
 done
 
 NAME=`basename $DEV`
 
-minicom -c on -D $DEV -C "/tmp/captute-$NAME.txt"
+sudo minicom -w -c on -D $DEV -C "/VolGroup02/tmp/${NAME}-capture.txt"

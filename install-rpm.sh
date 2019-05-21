@@ -1,7 +1,10 @@
 #!/bin/sh
 
 PROF="emulator"
-RPM_SRC="$HOME/GBS-ROOT/$PROF/local/repos/$PROF/i586/RPMS"
+if [ -n "$1" ]; then
+    PROF=$1
+fi
+RPM_SRC="$HOME/GBS-ROOT/local/repos/$PROF/i586/RPMS"
 
 
 mkdir -p RPMS
@@ -14,11 +17,11 @@ systemctl stop tef-simulator
 
 echo "Uninstalling packages"
 echo "   Uninstall tct-test-ta"
-rpm -e `rpm -qa |grep tct-test-ta` --nodeps
+rpm -e \`rpm -qa |grep tct-test-ta\` --nodeps
 echo "   Uninstall tef-simulator"
-rpm -e `rpm -qa |grep tef-simulator` --nodeps
+rpm -e \`rpm -qa |grep tef-simulator\` --nodeps
 echo "   Uninstall tef-libteec"
-rpm -e `rpm -qa |grep tef-libteec` --nodeps
+rpm -e \`rpm -qa |grep tef-libteec\` --nodeps
 
 rm -rf /tmp/tastore /opt/usr/apps/ta_sdk
 rm -rf /usr/lib/tastore /usr/lib64/tastore

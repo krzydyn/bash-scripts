@@ -1,17 +1,50 @@
 #!/bin/bash
 
 PROF="tizen"
-ARCH="armv7l"
-#ARCH="i586"
-if [ -n "$1" ]; then
-    PROF=$1
+ARCH=""
+
+OPTS=()
+while [ $# -gt 0 ]; do
+	a=$1; shift
+    case "$a" in
+        -t) exit
+            ;;
+        -P) PROF="$1"; shift
+            ;;
+        -A) ARCH="$1"; shift
+            ;;
+        -*) OPTS+=("$a" "$1"); shift
+            ;;
+        *)	set $a "$@"
+			 break;;
+    esac
+done
+
+if [ "$ARCH" = "" ]; then
+	case $PROF in
+		emulator)   ARCH="i586"
+			;;
+		emulator64) ARCH="x86_64"
+			PROF="emulator"
+			;;
+		*tizen) ARCH="armv7l";;
+		*tizen64)
+			PROF="tizen"
+			ARCH="aarch64";;
+		*)
+			PROXY=""
+			ARCH="armv7l";;
+	esac
 fi
 
-rootfs=~/GBS-ROOT/${PROF}/local/BUILD-ROOTS/scratch.${ARCH}.0
-repo=~/GBS-ROOT/${PROF}/local/repos/${PROF}/${ARCH}/RPMS
+BUILD_ROOT="$HOME/GBS-ROOT/$PROF"
+
+rootfs=${BUILD_ROOT}/local/BUILD-ROOTS/scratch.${ARCH}.0
+repo=${BUILD_ROOT}/local/repos/${PROF}/${ARCH}/RPMS
 
 #sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
 
+echo "chroot $rootfs"
 if [ "$PROF" = "slp" ];then
 sudo -- sh -c "\
 mkdir -p $rootfs/RPMS &&\
@@ -22,14 +55,14 @@ chroot $rootfs ;\
 umount $rootfs/RPMS\
 "
 else
-echo "chroot $rootfs"
-sudo rm -rf "$rootfs/RPMS"
-sudo cp -a $repo $rootfs/
+#sudo rm -rf "$rootfs/RPMS"
+sudo mkdir -p "$rootfs/RPMS" && sudo mount "$repo" "$rootfs/RPMS" -o bind,ro
 sudo mount /proc $rootfs/proc -o bind,ro
 sudo -- sh -c "\
-chroot $rootfs ;\
+chroot "$rootfs" ;\
 "
-sudo umount $rootfs/proc
+sudo umount "$rootfs/RPMS"
+sudo umount "$rootfs/proc"
 fi
 
 #sudo chroot ~/GBS-ROOT/local/BUILD-ROOTS/scratch.armv7l.0/ su -
