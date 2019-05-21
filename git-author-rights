@@ -1,3 +1,7 @@
+#!/bin/bash
+
+. ~/bin/.functions.inc
+
 M=$1
 GIT_USER=$2
 date_from=
@@ -18,13 +22,22 @@ while [ "$M" = `date -d "$date_from +$offs days" +%m` ]; do
     offs=$((offs+1))
 done
 date_to=`date -d "$date_from +$offs days" +%Y-%m-%d`
-date_from=`date --date "$date_from"`
+#date_to="2018-09-15"
+#date_from=`date --date "$date_from"`
+#date_from="2018-09-15"
 echo commits from $date_from to $date_to for $GIT_USER > /dev/stderr
 
+#COMMITS=207692c..HEAD
+COMMITS=
+
+export GIT_AUTHOR=$GIT_USER
+# git 2.16 supports --ignore-cr-at-eol
 if [ "x$GIT_USER" = "xany" ]; then
     git log --format=fuller --ignore-space-change --patience --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder --patch
 else
-    git log --all --format=fuller --ignore-space-change --patience --author="$GIT_USER" --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder --patch
+	showargs git log --format=fuller --ignore-space-change --patience --author="$GIT_USER" --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder
+    git log --format=fuller --ignore-space-change --patience --author="$GIT_USER" --after="$date_from" --before="$date_to" -M90% -C90% --find-copies-harder --patch \
+		$COMMITS
 # | grep -v AuthorDate
 fi
 

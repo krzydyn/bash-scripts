@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PROF="tizen"
-
 TOP_DIR=~/GBS-ROOT
 
 while [ $# -gt 0 ]; do
@@ -12,10 +10,10 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-MAIN_CACHE=${TOP_DIR}/$PROF/local/cache
-ORDER_CACHE=${TOP_DIR}/$PROF/local/order
+RPM_CACHE=${TOP_DIR}/local/cache
+ORDER_CACHE=${TOP_DIR}/local/order
 
 echo "clean caches ..."
-rm -rf $MAIN_CACHE $ORDER_CACHE
+rm -rf $ORDER_CACHE
 #sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
 echo "done."

@@ -5,6 +5,8 @@ if [ ! "$BASH_VERSION" ] ; then
     exit 1
 fi
 
+. ~/bin/.functions.inc
+
 SEARCHDIR=""
 
 ARGS=()
@@ -45,5 +47,5 @@ if [ -z "$SEARCHDIR" ]; then
 fi
 
 OPTS+=("-not" "-path" "./GBS-ROOT/*" )
-echo "find $SEARCHDIR" "${OPTS[@]}" "${ARGS[@]}" >&2
+showargs find "$SEARCHDIR" "${OPTS[@]}" "${ARGS[@]}"
 find "$SEARCHDIR" "${OPTS[@]}" "${ARGS[@]}" 2>/dev/null

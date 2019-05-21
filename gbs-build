@@ -49,6 +49,8 @@ if [ "$ARCH" = "" ]; then
 	esac
 fi
 
+BUILD_ROOT="~/GBS-ROOT/$PROF"
+
 if [ $# -eq 0 ]; then
     set "."
 fi
@@ -56,14 +58,17 @@ fi
 
 # --include-all - compiles changed sources, otherwise only commited
 OPTS+=("--include-all")
+OPTS+=("--overwrite")
+OPTS+=("-B" "$BUILD_ROOT")
 
 #sudo -- sh -c "echo '-1' > /proc/sys/fs/binfmt_misc/status"
 
-rm -rf ~/GBS-ROOT/$PROF/local/sources/
+#rm -rf ~/GBS-ROOT/$PROF
 
 for i in $@; do
     if [ "x$i" = "x" ]; then continue; fi
     PROJ_OPTS=()
+	PROJ_OPTS+=("-P" "$PROF")
     f=`readlink -m $i`
     f=`basename $f`
 	#choose config based on project name (dirname)
@@ -76,11 +81,9 @@ for i in $@; do
 			PROJ_OPTS+=("--spec" "tef-simulator.spec")
 			;;
         *)
-			profile=$PROF
 			PROJ_OPTS+=("-A" "$ARCH")
 			;;
     esac
-	PROJ_OPTS+=("-P" "$profile")
 	echo "Building $f"
 	if [ -n "$PROXY" ]; then
 		echo -n "HTTP_PROXY=$PROXY" 

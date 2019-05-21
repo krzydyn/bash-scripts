@@ -28,22 +28,32 @@ PARTMAP=
 LOADER_IMG=
 SECOS_IMG=
 TARTGET_IP=
+MAX_SECURE_SIZE=0;
 
 case "$BOARD" in
 	artik530)
+		MAX_SECURE_SIZE=$((0x150000))
 		TARTGET_IP=172.16.0.66
 		PARTMAP="artik530s_20180416_fuse/partmap_emmc.txt"
 		LOADER_IMG="artik530s_20180416_fuse/loader-emmc.img"
 		SECOS_IMG="result-artik530_raptor/secureos.img"
+		LOADER_PART="loader"
 		SECOS_PART="secure"
 		#fastboot flash secure secureos-leszek.img
 		TLS_BIN_DIR=/VolGroup02/Arch/socket-DS/tls_test_server
 		;;
 	artik711)
+		MAX_SECURE_SIZE=$((0x180000))
 		TARTGET_IP=10.42.0.2
+		TARTGET_IP=172.16.0.66
 		#PARTMAP="tools-artik7/partmap/partmap_artik711s_emmc.txt"
 		#LOADER_IMG="boot-firmwares-artik711s/fip-loader-emmc.img"
-		SECOS_IMG="result-artik711s_raptor/fip-secure.img"
+		#PARTMAP="./tools-artik7/partmap/partmap_artik711s_emmc-kd.txt"
+		#LOADER_IMG="./result-artik711s_raptor/fip-loader.bin"
+		SECOS_IMG="./result-artik711s_raptor/fip-secure.img"
+		#NONSECURE_IMG="./result-artik711s_raptor/fip-nonsecure.img"
+		#PARAMS_IMG="./result-artik711s_raptor/params.bin"
+		LOADER_PART="fip-loader"
 		SECOS_PART="fip-secure"
 		TLS_BIN_DIR=/VolGroup02/Arch/socket-DS/tls_test_server64
 		;;
@@ -53,6 +63,7 @@ case "$BOARD" in
 esac
 
 SECOS_DIR=$HOME/Secos/Trustware/build-$BOARD
+SECOS_SRC_DIR=$HOME/Secos/Trustware
 SECOS_SOCKETAPI_DIR=$SECOS_DIR/out/app-ree-build/trustzone-application/test_socketapi
 
 function install_secos() {
@@ -67,15 +78,25 @@ if [ $rc -ne 0 ]; then
 	echo "./sign_secos.sh rc=$rc"
 	exit
 fi
+if [ -f "${SECOS_IMG}" ]; then
+	BINSIZE=`wc -c "${SECOS_IMG}"|awk '{print $1}'`
+	echo "Secos Image size = ${BINSIZE} bytes"
+	if [ ${BINSIZE} -ge ${MAX_SECURE_SIZE} ]; then
+		echo "${OUTPUT_DIR}/kernel-install/secos.bin is too large (${BINSIZE} bytes)"
+		exit
+	fi
+fi
 [ -n "$PARTMAP" ] && sudo fastboot flash partmap "$PARTMAP"
-[ -n "$LOADER_IMG" ] && sudo fastboot flash loader "$LOADER_IMG"
+[ -n "$LOADER_IMG" ] && sudo fastboot flash "$LOADER_PART" "$LOADER_IMG"
 sudo fastboot flash "$SECOS_PART" "$SECOS_IMG"
+[ -n "$NONSECURE_IMG" ] && sudo fastboot flash fip-nonsecure "$NONSECURE_IMG"
+[ -n "$PARAMS_IMG" ] && sudo fastboot flash env "$PARAMS_IMG"
 
-sleep 0.5;fastboot reboot
+sleep 0.5;sudo fastboot reboot
 
-echo "============================"
-echo "ifconfig eth0 172.16.0.66 up"
-echo "============================"
+echo "#==============================="
+echo "#  ifconfig eth0 172.16.0.66 up"
+echo "#==============================="
 }
 
 USER_ARCH=
@@ -104,11 +125,25 @@ insmod -f /usr/modules/tzdev.ko
 EOF
 chmod +x install/root/tzdev.sh
 cat > install/root/run.sh <<EOF
+rm -rf /opt/usr/apps/save_error_log/error_log/*
 insmod -f /usr/modules/tzdev.ko
 sleep 1
 /bin/tzdaemon
 EOF
 chmod +x install/root/run.sh
+}
+
+function install_src() {
+echo "preparing src files..."
+mkdir -p install/root/source_dbg/trustzone-application/test_usability/
+cp -r $SECOS_SRC_DIR/trustzone-application/test_usability install/root/source_dbg/trustzone-application/
+tar czf install/root/source_dbg.tgz -C install/root source_dbg
+rm -rf install/root/source_dbg
+
+cat > install/root/unpack.sh <<EOF
+tar xzf source_dbg.tgz
+EOF
+chmod +x install/root/unpack.sh
 }
 
 function install_twts() {
@@ -149,6 +184,7 @@ while [ $# -gt 0 ]; do
 case "$1" in
 	secos) install_secos;;
 	tzdev) install_tzdev;;
+	src) install_src;;
 	twts) install_twts;;
 	*) usage "wrong arg '$1'";;
 esac
@@ -156,6 +192,9 @@ shift
 done
 
 if [ -d install ]; then
+	while ! ping -c 2 -w 5 $TARTGET_IP; do
+		echo waiting for target inerface is up
+	done
 	echo "copying install dir..."
 	scp -r install/* "root@$TARTGET_IP:/"
 	echo "done."

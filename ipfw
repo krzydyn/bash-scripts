@@ -2,7 +2,7 @@ LOCALIP=106.120.53.115
 LOCALPORT=8080
 REMOTEIP=216.34.181.45
 REMOTEPORT=80
-IFACE=em1
+WAN=eno1
 
 case "$1" in
 	del-iptables)
@@ -10,13 +10,23 @@ case "$1" in
 		iptables -t nat -D PREROUTING -i $IFACE -p tcp -m tcp --dport $LOCALPORT -j DNAT --to-destination $REMOTEIP:$REMOTEPORT
 	;;
 
-	iptables)
+	ipt-port)
 		iptables -t nat -A PREROUTING -i $IFACE -p tcp -m tcp --dport $LOCALPORT -j DNAT --to-destination $REMOTEIP:$REMOTEPORT
 		iptables -t nat -A POSTROUTING -o $IFACE -j SNAT --to-source $LOCALIP
 		iptables -t nat -A POSTROUTING -j MASQUERADE
 	;;
 
-	ssh)
+	nat)
+		echo 1 > /proc/sys/net/ipv4/ip_forward
+		iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+		echo "add 'nameserver 8.8.8.8' to /etc/resolv.conf on target"
+	;;
+
+	del-nat)
+		iptables -F -t nat
+	;;
+
+	ssh-port)
 		ssh -L $LOCALIP:$LOCALPORT:$REMOTEIP:$REMOTEPORT -N user@REMOTEIP
 	;;
 esac
